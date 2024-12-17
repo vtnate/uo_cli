@@ -40,7 +40,8 @@ gem 'parser', '3.2.2.2'
 # if allow_local && File.exist?('../urbanopt-reopt-gem')
 #  gem 'urbanopt-reopt', path: '../urbanopt-reopt-gem'
 # elsif allow_local
-# gem 'urbanopt-reopt', github: 'URBANopt/urbanopt-reopt-gem', branch: 'develop'
+#TODO: Comment out and change to develop once reopt gem is released.
+gem 'urbanopt-reopt', github: 'URBANopt/urbanopt-reopt-gem', branch: 'ghp_lcca'
 # end
 
 # if allow_local && File.exist?('../urbanopt-reporting-gem')

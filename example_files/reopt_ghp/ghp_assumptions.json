@@ -1,0 +1,26 @@
+{
+    "Site": {
+        "latitude": 39.99153232,
+        "longitude": -105.2648427
+    },
+    "SpaceHeatingLoad": {
+    },
+    "DomesticHotWaterLoad": {    
+    },
+    "ElectricLoad": {    
+    },
+    "ElectricTariff": {
+        "urdb_label": "594976725457a37b1175d089"   
+    },
+    "GHP":{
+        "installed_cost_heatpump_per_ton": 1075,
+        "installed_cost_ghx_per_ft": 14,
+        "installed_cost_building_hydronic_loop_per_sqft": 1.7,
+        "om_cost_per_sqft_year": 0,
+        "macrs_bonus_fraction": 0.6, 
+        "macrs_itc_reduction": 0.5,
+        "federal_itc_fraction": 0.3
+    },
+    "ExistingBoiler": {
+    }
+}

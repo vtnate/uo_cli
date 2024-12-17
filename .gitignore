@@ -21,7 +21,7 @@
 
 # rspec test folder
 spec/test_directory*
-
+spec/reopt_ghp
 Gemfile.lock
 .rubocop*
 
@@ -30,3 +30,4 @@ example_files/python_deps/Miniconda*
 example_files/python_deps/python_config.json
 example_files/python_deps/python
 example_files/python_deps/python-3.10
+

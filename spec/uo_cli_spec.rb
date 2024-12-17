@@ -6,6 +6,7 @@
 require 'csv'
 require 'json'
 require 'open3'
+require 'fileutils'
 
 RSpec.describe URBANopt::CLI do
   example_dir = Pathname(__FILE__).dirname.parent / 'example_files'
@@ -467,7 +468,8 @@ RSpec.describe URBANopt::CLI do
     end
 
     it 'runs a ghe project', :ghe do
-      system("cp #{spec_dir / 'spec_files' / 'baseline_scenario_ghe.csv'} #{test_scenario_ghe}")
+      FileUtils.cp(spec_dir / 'spec_files' / 'baseline_scenario_ghe.csv', test_scenario_ghe)
+      expect((test_scenario_ghe).exist?).to be true
       puts "copied #{test_scenario_ghe}"
       system("#{call_cli} run --scenario #{test_scenario_ghe} --feature #{test_feature_ghe}")
       expect((test_directory_ghe / 'run' / 'baseline_scenario_ghe' / '4' / 'finished.job').exist?).to be true
@@ -502,7 +504,7 @@ RSpec.describe URBANopt::CLI do
     end
 
     it 'creates a 5G Modelica model with the GMT', :ghe do
-      system("#{call_cli} des_create --feature #{test_feature_ghe} --sys-param #{ghe_system_parameters_file} --des-name #{test_directory_ghe / 'modelica_ghe'}")
+      system("#{call_cli} des_create --feature #{test_feature_ghe} --sys-param #{ghe_system_parameters_file} --des-name #{test_directory_ghe / 'modelica_ghe'} --district_type 5G_ghe")
       expect((test_directory_ghe / 'modelica_ghe' / 'Districts' / 'DistrictEnergySystem.mo').exist?).to be true
     end
 
@@ -515,6 +517,53 @@ RSpec.describe URBANopt::CLI do
       skip('Requires Docker to be installed') unless system('which docker > /dev/null 2>&1')
       system("#{call_cli} des_run --model #{test_directory_ghe / 'modelica_ghe'}")
       expect((test_directory_ghe / 'modelica_ghe' / 'modelica_ghe.Districts.DistrictEnergySystem_results' / 'modelica_ghe.Districts.DistrictEnergySystem_res.mat').exist?).to be true
+    end
+  end
+
+  context 'Run REopt LCCA analysis for a GHE network' do
+
+    it 'can run a REopt LCCA analysis' do
+      reopt_dir = File.join(spec_dir, 'reopt_ghp')
+      system_parameter = File.join(reopt_dir, 'system_parameter_ghe_2feature.json')
+      modelica_model = File.join(reopt_dir, 'modelica_4')
+      feature_file = File.join(reopt_dir, 'example_project_with_ghe_2features.json')
+      scenario_file = File.join(reopt_dir, 'baseline_scenario_ghe.csv')
+      puts system_parameter
+      puts modelica_model
+      FileUtils.cp_r(spec_dir / 'spec_files' / 'reopt_ghp', spec_dir)
+      
+      system("#{call_cli} process --reopt-ghp --system-parameter #{system_parameter} --modelica-model #{modelica_model} --scenario #{scenario_file} --feature #{feature_file}")
+      reopt_inputs = File.join(reopt_dir,'run', 'baseline_scenario_ghe', 'reopt_ghp','reopt_ghp_inputs')
+      expect(Dir.exist?(reopt_inputs)).to be true
+      reopt_outputs = File.join(reopt_dir,'run', 'baseline_scenario_ghe', 'reopt_ghp','reopt_ghp_outputs')
+      expect(Dir.exist?(reopt_inputs)).to be true
+      expect(Dir.empty?(reopt_inputs)).to be false
+      # TODO : Uncomment after GHX outputs are resolved
+      # Dir.foreach(reopt_ghp_output) do |file|
+      #     next if file == '.' || file == '..' # Skip current and parent directory references
+      #     file_path = File.join(reopt_ghp_output, file)
+        
+      #     if File.file?(file_path)
+      #         File.open(file_path, 'r') do |f|
+      #             file_data = JSON.parse(f.read, symbolize_names: true)
+      #             expect(file_data[:outputs][:Financial][:npv]).to_not be_nil
+      #             expect(file_data[:outputs][:Financial][:lcc]).to_not be_nil
+      #             expect(file_data[:messages][:errors]).to be_nil.or be_empty
+      #         end
+      #     end
+      # end
+      output_building_5 = File.join(reopt_outputs, 'GHP_building_5_output.json')
+      output_building_5_data = nil
+      File.open(output_building_5, 'r') do |f|
+          output_building_5_data = JSON.parse(f.read, symbolize_names: true)
+          expect(output_building_5_data[:outputs][:Financial][:npv]).to_not be_nil
+          expect(output_building_5_data[:outputs][:Financial][:lcc]).to_not be_nil
+          expect(output_building_5_data[:messages][:errors]).to be_nil.or be_empty
+      end
+
+      
+      
+
     end
   end
 
